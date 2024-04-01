@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template
+from data import db_session
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
@@ -12,6 +13,7 @@ def index():
 
 
 def main():
+    db_session.global_init('db/learners.sqlite')
     app.run(port=5050)
 
 
