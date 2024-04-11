@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy_serializer import SerializerMixin
 import sqlalchemy
 from sqlalchemy import orm, Table, Column, Integer, ForeignKey
@@ -10,6 +11,9 @@ class Group(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
+    created_date = sqlalchemy.Column(sqlalchemy.DateTime,
+                                     default=datetime.datetime.now)
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     user = orm.relationship('User')
     exercises = orm.relationship('Exercise', secondary='quest_groups', backref='Group')
 
