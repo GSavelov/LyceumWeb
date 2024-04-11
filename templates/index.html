@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h4>И на Марсе будут яблони цвести</h4>
+<h3>Works Log</h3>
+{% if current_user.is_authenticated %}
+    <a href="/add_job" class="btn btn-secondary">Добавить работу</a>
+{% endif %}
+
+{% endblock %}
