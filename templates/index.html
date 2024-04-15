@@ -1,10 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h4>И на Марсе будут яблони цвести</h4>
-<h3>Works Log</h3>
+<h3>Группы вопросов для повторения</h3>
+{% if groups %}
+{% for group in groups%}
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+            content.</p>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">An item</li>
+        <li class="list-group-item">A second item</li>
+        <li class="list-group-item">A third item</li>
+    </ul>
+    <div class="card-body">
+        <a href="#" class="card-link">Card link</a>
+        <a href="#" class="card-link">Another link</a>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">Card title</h5>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+            content.</p>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">An item</li>
+        <li class="list-group-item">A second item</li>
+        <li class="list-group-item">A third item</li>
+    </ul>
+    <div class="card-body">
+        <a href="#" class="card-link">Card link</a>
+        <a href="#" class="card-link">Another link</a>
+    </div>
+</div>
+{% endif %}
 {% if current_user.is_authenticated %}
-    <a href="/add_job" class="btn btn-secondary">Добавить работу</a>
+<a href="/add_que" class="btn btn-secondary">Вопрос</a>
+<a href="/add_job" class="btn btn-secondary">Добавить работу</a>
 {% endif %}
 
 {% endblock %}

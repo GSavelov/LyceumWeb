@@ -15,7 +15,6 @@ class Group(SqlAlchemyBase, SerializerMixin):
                                      default=datetime.datetime.now)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
     user = orm.relationship('User')
-    exercises = orm.relationship('Exercise', secondary='quest_groups', backref='Group')
 
 
 Quest_groups = Table('quest_groups',

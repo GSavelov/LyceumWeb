@@ -1,10 +1,13 @@
 import os
 
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask import Flask, render_template, redirect
 from data import db_session
 from data.users import User
+from data.groups import Group
+from data.exercises import Exercise
 from forms.user import RegisterForm, LoginForm
+from forms.exercise import ExerciseForm, GroupForm
 from dotenv import load_dotenv
 
 app = Flask(__name__)
@@ -23,7 +26,9 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    db_sess = db_session.create_session()
+    groups = db_sess.query(Group).all()
+    return render_template("index.html", groups=groups)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -64,6 +69,26 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect("/")
+
+
+@app.route('/add_que', methods=['GET', 'POST'])
+@login_required
+def add_que():
+    form = ExerciseForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        exercise = Exercise(question=form.question.data, answer=form.answer.data, user_id=current_user.id)
+        db_sess.add(exercise)
+        db_sess.commit()
+        return render_template('add_que.html', title='Добавить вопрос', form=form, message='Вопрос успешно добавлен')
+    return render_template('add_que.html', title='Добавить вопрос', form=form)
 
 
 def main():

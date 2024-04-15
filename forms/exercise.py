@@ -4,7 +4,9 @@ from wtforms.validators import DataRequired
 
 
 class ExerciseForm(FlaskForm):
-    pass
+    question = StringField('Вопрос', validators=[DataRequired()])
+    answer = StringField('Ответ', validators=[DataRequired()])
+    submit = SubmitField('Добавить')
 
 
 class GroupForm(FlaskForm):
