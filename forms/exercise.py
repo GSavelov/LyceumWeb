@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField, IntegerField, DateField
+from wtforms import StringField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired
 
 
@@ -10,4 +10,6 @@ class ExerciseForm(FlaskForm):
 
 
 class GroupForm(FlaskForm):
-    pass
+    name = StringField('Название группы', validators=[DataRequired()])
+    picks = SelectMultipleField('Выберите вопросы', validators=[DataRequired()])
+    submit = SubmitField('Добавить')

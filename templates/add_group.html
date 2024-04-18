@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Создание группы</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    {% if questions%}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(class="form-control") }}<br>
+        {% for error in form.name.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>
+        {{ form.picks.label }}<br>
+        {{ form.picks(class="form-select") }}<br>
+        {% for error in form.picks.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {% else %}
+    <h4>Нет вопросов для создания группы</h4>
+    {% endif %}
+    <div>{{ message }}</div>
+</form>
+{% endblock %}

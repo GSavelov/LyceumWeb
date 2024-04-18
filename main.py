@@ -91,6 +91,18 @@ def add_que():
     return render_template('add_que.html', title='Добавить вопрос', form=form)
 
 
+@app.route('/add_group', methods=['GET', 'POST'])
+@login_required
+def add_group():
+    form = GroupForm()
+    db_sess = db_session.create_session()
+    questions = db_sess.query(Exercise).filter(Exercise.user_id == current_user.id).all()
+    print(form.picks.data, form.name.data)
+    form.picks.choices = [(que.id, que.question) for que in questions]
+    if form.validate_on_submit():
+        return render_template('add_group.html', title='Добавить группу', form=form)
+    return render_template('add_group.html', title='Добавить группу', form=form, questions=questions)
+
 def main():
     db_session.global_init('db/learners.sqlite')
     app.run(port=5050)
