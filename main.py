@@ -4,11 +4,13 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask import Flask, render_template, redirect
 from data import db_session
 from data.users import User
-from data.groups import Group
+from data.groups import Group, Quest_groups
 from data.exercises import Exercise
 from forms.user import RegisterForm, LoginForm
 from forms.exercise import ExerciseForm, GroupForm
+from sqlalchemy import insert
 from dotenv import load_dotenv
+import groups_api
 
 app = Flask(__name__)
 load_dotenv()
@@ -97,14 +99,25 @@ def add_group():
     form = GroupForm()
     db_sess = db_session.create_session()
     questions = db_sess.query(Exercise).filter(Exercise.user_id == current_user.id).all()
-    print(form.picks.data, form.name.data)
+    # form.picks.data - список id
+    # form.name.data - название (строка)
     form.picks.choices = [(que.id, que.question) for que in questions]
     if form.validate_on_submit():
-        return render_template('add_group.html', title='Добавить группу', form=form)
+        group = Group(name=form.name.data, user_id=current_user.id)
+        db_sess.add(group)
+        db_sess.commit()
+        identifier = len(db_sess.query(Group).all())
+        for q in form.picks.data:
+            stmt = insert(Quest_groups).values(question_id=q, group_id=identifier)
+            db_sess.execute(stmt)
+            db_sess.commit()
+        return redirect("/")
     return render_template('add_group.html', title='Добавить группу', form=form, questions=questions)
+
 
 def main():
     db_session.global_init('db/learners.sqlite')
+    app.register_blueprint(groups_api.blueprint)
     app.run(port=5050)
 
 

@@ -27,6 +27,10 @@
     {% else %}
     <h4>Нет вопросов для создания группы</h4>
     {% endif %}
-    <div>{{ message }}</div>
+    {% if form.validate_on_submit() %}
+    <div class="alert alert-danger" role="alert">
+        A simple danger alert—check it out!
+    </div>
+    {% endif %}
 </form>
 {% endblock %}
