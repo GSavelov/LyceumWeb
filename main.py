@@ -1,18 +1,20 @@
 import os
 
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, abort
+from flask_restful import Api
 from data import db_session
 from data.users import User
 from data.groups import Group, Quest_groups
 from data.exercises import Exercise
 from forms.user import RegisterForm, LoginForm
 from forms.exercise import ExerciseForm, GroupForm
-from sqlalchemy import insert
+from sqlalchemy import insert, delete
 from dotenv import load_dotenv
-import groups_api
+import groups_resources
 
 app = Flask(__name__)
+api = Api(app)
 load_dotenv()
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
@@ -31,6 +33,11 @@ def index():
     db_sess = db_session.create_session()
     groups = db_sess.query(Group).all()
     return render_template("index.html", groups=groups)
+
+
+@app.route("/task")
+def task():
+    return render_template("task.html")
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -108,16 +115,34 @@ def add_group():
         db_sess.commit()
         identifier = len(db_sess.query(Group).all())
         for q in form.picks.data:
-            stmt = insert(Quest_groups).values(question_id=q, group_id=identifier)
-            db_sess.execute(stmt)
+            statement = insert(Quest_groups).values(question_id=q, group_id=identifier)
+            db_sess.execute(statement)
             db_sess.commit()
         return redirect("/")
     return render_template('add_group.html', title='Добавить группу', form=form, questions=questions)
 
 
+@app.route('/group_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def group_delete(id):
+    db_sess = db_session.create_session()
+    group = db_sess.query(Group).filter(Group.id == id, Group.user_id == current_user.id).first()
+    statement = delete(Quest_groups).where(Quest_groups.c.group_id == id)
+    if group:
+        db_sess.execute(statement)
+        db_sess.delete(group)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 def main():
     db_session.global_init('db/learners.sqlite')
-    app.register_blueprint(groups_api.blueprint)
+    api.add_resource(groups_resources.GroupsListResource, '/groups')
+    api.add_resource(groups_resources.GroupsResource, '/group/<int:group_id>')
+    api.add_resource(groups_resources.QuestionsListResource, '/questions/<int:group_id>')
+    api.add_resource(groups_resources.QuestionsResource, '/question/<int:que_id>')
     app.run(port=5050)
 
 
