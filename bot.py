@@ -29,7 +29,7 @@ async def on_message(update, context: CallbackContext):
 
 
 async def help(update, context):
-    file = open("help.txt", 'r', encoding='utf-8')
+    file = open("description/help.txt", 'r', encoding='utf-8')
     message = str(file.read())
     await update.message.reply_text(message)
 
@@ -37,16 +37,30 @@ async def help(update, context):
 async def list_of_groups(update, context):
     keyboard = ReplyKeyboardMarkup([['/return'], []])
     strings = [f"{group['id']}. {group['name']}" for group in get_list_of_groups()["groups"]]
+    strings.append('Напишите id нужной группы вопросов')
     await update.message.reply_text('\n'.join(strings), reply_markup=keyboard)
     return 1
 
 
-async def response():
+async def get_id(update, context):
+    text = update.message.text
+    await update.message.reply_text('123123')
+    # if text in [str(group['id']) for group in get_list_of_groups()["groups"]]:
+    #     context.user_data["group_id"] = text
+    #     context.user_data["questions"] = get_list_of_questions(text)
+    #     context.user_data["current"] = 0
+    #     await update.message.reply_text(f"Выбрана группа вопросов: {get_group(text)['name']}.")
+    #     return 2
+    # else:
+    #     await update.message.reply_text('Группы с таким id не существует.')
+
+
+async def question_response(update, context):
     pass
 
 
-async def start_dialog(update, context):
-    text = int(update.message.text)
+async def answer_response(update, context):
+    pass
 
 
 async def end_dialog(update, context):
@@ -56,29 +70,17 @@ async def end_dialog(update, context):
     return ConversationHandler.END
 
 
-async def get_id(update, context):
-    text = update.message.text
-    if text in [str(group['id']) for group in get_list_of_groups()["groups"]]:
-        return 2
-    else:
-        update.message.reply_text('Группы с таким id не существует')
-
-
 def main():
     application = Application.builder().token(BOT_TOKEN).build()
     application.add_handler(CommandHandler("start", on_start))
-    application.add_handler(CommandHandler("return", on_start))
     application.add_handler(CommandHandler("help", help))
-    application.add_handler(CommandHandler("groups", list_of_groups))
-    application.add_handler(MessageHandler(filters=filters.TEXT & ~filters.COMMAND, callback=on_message))
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', list_of_groups)],
+        entry_points=[CommandHandler('groups', list_of_groups)],
         states={
-            1: [MessageHandler(filters.TEXT, get_id)],
-            2: [MessageHandler(filters.TEXT & ~filters.COMMAND, response)]
+            1: [MessageHandler(filters=filters.TEXT & ~filters.COMMAND, callback=get_id)],
+            2: [MessageHandler(filters=filters.TEXT & ~filters.COMMAND, callback=end_dialog)]
         },
 
-        # Точка прерывания диалога. В данном случае — команда /stop.
         fallbacks=[CommandHandler('return', end_dialog)]
     )
     application.add_handler(conv_handler)

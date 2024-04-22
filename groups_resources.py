@@ -1,4 +1,4 @@
-from flask_restful import abort, Resource
+from flask_restful import abort, Resource, reqparse
 from flask import jsonify
 from sqlalchemy import select
 from data import db_session
@@ -18,6 +18,13 @@ def abort_if_question_not_found(que_id):
     que = session.query(Group).get(que_id)
     if not que:
         abort(404, message=f"Question {que_id} not found")
+
+
+parser = reqparse.RequestParser()
+parser.add_argument('question')
+parser.add_argument('answer')
+parser.add_argument('user_id')
+parser.add_argument('group_name')
 
 
 class GroupsResource(Resource):
@@ -44,6 +51,18 @@ class QuestionsResource(Resource):
         question = session.query(Exercise).get(que_id)
         return jsonify({'group': question.to_dict(
             only=('id', 'question', 'answer', 'user_id'))})
+
+    def post(self):
+        args = parser.parse_args()
+        session = db_session.create_session()
+        exercise = Exercise(
+            question=args.question,
+            answer=args.answer,
+            user_id=args.user_id
+        )
+        session.add(Exercise)
+        session.commit()
+        return jsonify({"id": exercise.id})
 
 
 class QuestionsListResource(Resource):
