@@ -1,17 +1,32 @@
 [
   {
-    "question": "",
-    "answer": "",
+    "question": "Равнодействующая всех сил",
+    "answer": "F = ma",
     "user_id": 1
   },
   {
-    "question": "",
-    "answer": "",
+    "question": "Закон Менделеева-Клапейрона",
+    "answer": "pV = vRT",
     "user_id": 1
   },
   {
-    "question": "",
-    "answer": "",
+    "question": "Энергия запасённая в конденсаторе",
+    "answer": "W = (CU^2)/2",
+    "user_id": 1
+  },
+  {
+    "question": "sin(2a) = ?",
+    "answer": "2sin(a)cos(a)",
+    "user_id": 1
+  },
+  {
+    "question": "cos(2a) = ?",
+    "answer": "cos(a)^2 - sin^2(a)",
+    "user_id": 1
+  },
+  {
+    "question": "a^2 - b^2",
+    "answer": "(a - b)(a + b)",
     "user_id": 1
   }
 ]

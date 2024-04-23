@@ -1,9 +1,10 @@
 from flask_restful import abort, Resource, reqparse
 from flask import jsonify
-from sqlalchemy import select
+from sqlalchemy import select, insert
 from data import db_session
 from data.groups import Group, Quest_groups
 from data.exercises import Exercise
+from data.groups import Group
 
 
 def abort_if_group_not_found(group_id):
@@ -25,6 +26,7 @@ parser.add_argument('question')
 parser.add_argument('answer')
 parser.add_argument('user_id')
 parser.add_argument('group_name')
+parser.add_argument('questions')
 
 
 class GroupsResource(Resource):
@@ -32,16 +34,31 @@ class GroupsResource(Resource):
         abort_if_group_not_found(group_id)
         session = db_session.create_session()
         group = session.query(Group).get(group_id)
+        que_ids = session.execute(select(Quest_groups).where(Quest_groups.c.group_id == group_id)).all()
         return jsonify({'group': group.to_dict(
-            only=('id', 'name', 'user_id'))})
+            only=('id', 'name', 'user_id')), 'questions': [que[0] for que in que_ids]})
 
 
 class GroupsListResource(Resource):
     def get(self):
         session = db_session.create_session()
         groups = session.query(Group).all()
-        return jsonify({'groups': [item.to_dict(
-            only=('id', 'name', 'user_id')) for item in groups]})
+        return jsonify([item.to_dict(
+            only=('id', 'name', 'user_id')) for item in groups])
+
+    def post(self):
+        args = parser.parse_args()
+        session = db_session.create_session()
+        group = Group(
+            name=args.group_name,
+            user_id=args.user_id
+        )
+        session.add(group)
+        session.commit()
+        for i in args.questions:
+            session.execute(insert(Quest_groups).values(question_id=i, group_id=group.id))
+        session.commit()
+        return jsonify({"id": group.id})
 
 
 class QuestionsResource(Resource):
@@ -49,8 +66,16 @@ class QuestionsResource(Resource):
         abort_if_question_not_found(que_id)
         session = db_session.create_session()
         question = session.query(Exercise).get(que_id)
-        return jsonify({'group': question.to_dict(
-            only=('id', 'question', 'answer', 'user_id'))})
+        return jsonify(question.to_dict(
+            only=('question', 'answer')))
+
+
+class QuestionsListResource(Resource):
+    def get(self):
+        session = db_session.create_session()
+        questions = session.query(Exercise).all()
+        return jsonify([item.to_dict(
+            only=('id', 'question', 'answer', 'user_id')) for item in questions])
 
     def post(self):
         args = parser.parse_args()
@@ -60,14 +85,6 @@ class QuestionsResource(Resource):
             answer=args.answer,
             user_id=args.user_id
         )
-        session.add(Exercise)
+        session.add(exercise)
         session.commit()
         return jsonify({"id": exercise.id})
-
-
-class QuestionsListResource(Resource):
-    def get(self, group_id):
-        abort_if_group_not_found(group_id)
-        session = db_session.create_session()
-        que_ids = session.execute(select(Quest_groups).where(Quest_groups.c.group_id == group_id)).all()
-        return jsonify({'questions': [que[0] for que in que_ids]})

@@ -28,9 +28,9 @@ def get_question(question_id):
         return {"Error": "connection failed"}
 
 
-def get_list_of_questions(group_id):
+def get_list_of_questions():
     try:
-        response = requests.get(f"{URL}/questions/{group_id}")
+        response = requests.get(f"{URL}/questions")
         return response.json()
     except requests.exceptions.ConnectionError:
         return {"Error": "connection failed"}

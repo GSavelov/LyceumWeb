@@ -139,10 +139,10 @@ def group_delete(id):
 
 def main():
     db_session.global_init('db/learners.sqlite')
-    api.add_resource(groups_resources.GroupsListResource, '/groups')
     api.add_resource(groups_resources.GroupsResource, '/group/<int:group_id>')
-    api.add_resource(groups_resources.QuestionsListResource, '/questions/<int:group_id>')
+    api.add_resource(groups_resources.GroupsListResource, '/groups')
     api.add_resource(groups_resources.QuestionsResource, '/question/<int:que_id>')
+    api.add_resource(groups_resources.QuestionsListResource, '/questions')
     app.run(port=5050)
 
 

@@ -1,0 +1,12 @@
+[
+  {
+    "group_name": "Физика",
+    "user_id": 1,
+    "questions": [1, 2, 3]
+  },
+  {
+    "group_name": "Математика",
+    "user_id": 1,
+    "questions": [4, 5, 6]
+  }
+]
