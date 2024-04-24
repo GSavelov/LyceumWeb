@@ -1,7 +1,9 @@
+import os
 import requests
+from dotenv import load_dotenv
 
-
-URL = "http://127.0.0.1:5050"
+load_dotenv()
+URL = os.getenv('URL')
 
 
 def get_group(group_id):

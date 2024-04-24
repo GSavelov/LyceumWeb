@@ -1,6 +1,6 @@
 import logging
 import os
-from bot_requests import *
+from bot_requests import get_group, get_list_of_groups, get_question
 
 from telegram.ext import Application, CommandHandler, CallbackContext, MessageHandler, filters, ConversationHandler
 from telegram import ReplyKeyboardMarkup
@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.getenv('TOKEN')
+URL = os.getenv('URL')
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )

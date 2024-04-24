@@ -2,9 +2,9 @@ from flask_restful import abort, Resource, reqparse
 from flask import jsonify
 from sqlalchemy import select, insert
 from data import db_session
+from data.users import User
 from data.groups import Group, Quest_groups
 from data.exercises import Exercise
-from data.groups import Group
 
 
 def abort_if_group_not_found(group_id):
@@ -21,12 +21,21 @@ def abort_if_question_not_found(que_id):
         abort(404, message=f"Question {que_id} not found")
 
 
+def abort_if_user_not_found(user_id):
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    if not user:
+        abort(404, message=f"User {user_id} not found")
+
+
 parser = reqparse.RequestParser()
 parser.add_argument('question')
 parser.add_argument('answer')
-parser.add_argument('user_id')
 parser.add_argument('group_name')
 parser.add_argument('questions')
+parser.add_argument('user_id')
+parser.add_argument('user_name')
+parser.add_argument('email')
 
 
 class GroupsResource(Resource):
@@ -57,7 +66,7 @@ class GroupsListResource(Resource):
         session.commit()
         for i in args.questions:
             session.execute(insert(Quest_groups).values(question_id=i, group_id=group.id))
-        session.commit()
+            session.commit()
         return jsonify({"id": group.id})
 
 
@@ -88,3 +97,31 @@ class QuestionsListResource(Resource):
         session.add(exercise)
         session.commit()
         return jsonify({"id": exercise.id})
+
+
+class UsersResource(Resource):
+    def get(self, user_id):
+        abort_if_user_not_found(user_id)
+        session = db_session.create_session()
+        user = session.query(User).get(user_id)
+        return jsonify(user.to_dict(
+            only=('name', 'email')))
+
+
+class UsersListResource(Resource):
+    def get(self):
+        session = db_session.create_session()
+        users = session.query(User).all()
+        return jsonify([item.to_dict(
+            only=('id', 'name', 'email')) for item in users])
+
+    def post(self):
+        args = parser.parse_args()
+        session = db_session.create_session()
+        user = User(
+            name=args.user_name,
+            email=args.email
+        )
+        session.add(user)
+        session.commit()
+        return jsonify({"id": user.id})

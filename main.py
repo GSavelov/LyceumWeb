@@ -122,12 +122,12 @@ def add_group():
     return render_template('add_group.html', title='Добавить группу', form=form, questions=questions)
 
 
-@app.route('/group_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/group_delete/<int:group_id>', methods=['GET', 'POST'])
 @login_required
-def group_delete(id):
+def group_delete(group_id):
     db_sess = db_session.create_session()
-    group = db_sess.query(Group).filter(Group.id == id, Group.user_id == current_user.id).first()
-    statement = delete(Quest_groups).where(Quest_groups.c.group_id == id)
+    group = db_sess.query(Group).filter(Group.id == group_id, Group.user_id == current_user.id).first()
+    statement = delete(Quest_groups).where(Quest_groups.c.group_id == group_id)
     if group:
         db_sess.execute(statement)
         db_sess.delete(group)
@@ -143,6 +143,8 @@ def main():
     api.add_resource(groups_resources.GroupsListResource, '/groups')
     api.add_resource(groups_resources.QuestionsResource, '/question/<int:que_id>')
     api.add_resource(groups_resources.QuestionsListResource, '/questions')
+    api.add_resource(groups_resources.UsersResource, '/user/<int:user_id>')
+    api.add_resource(groups_resources.UsersListResource, '/users')
     app.run(port=5050)
 
 
